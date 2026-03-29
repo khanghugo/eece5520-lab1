@@ -1,0 +1,77 @@
+# journal
+
+## 2026-03-14
+
+I finally gather the courage to start the lab. Seems complicated. But it looks like not much going on with the hardware. I only have to wire up one component. Most of the work here is just hardware. Good.
+
+I did everything ok, no problem.
+
+## 2026-03-15
+
+First date actually, couldn't figure out why the python failed to connect
+
+I had to implement the `writeRegister()` and `readRegister()`. Luckily, the code is right in the specification and I do know how to read. I'd cry if I have to go look up how to implement it. But at the very least I did not have to do that.
+
+Back to the error at hand, I enabled Arduino serial port monitor and change the baud and the error is apparent. Nice. Before, it was 9600 and it shows nothing. I thought I missed something.
+
+The error is then persistent.
+
+```plaintext
+ERROR:_I = 0x70 (expected 0x68). Check wiring: SDA→pin20, SCL→pin21.
+ERROR: WHO_AM_I = 0x70 (expected 0x68). Check wiring: SDA→pin20, SCL→pin21.
+```
+
+So it does return something for WHO_AM_I but just not the correct value. I remember again that I had a bit of doubt while wiring up the build because I don't have MPU-6050. I have MPU-9200/6500/9255. It seems like the only way forward it to accept that `WHO_AM_I` must be `0x70`.
+
+And yes, that works.
+
+## 2026-03-21
+
+I didn't know I have been neglecting it for a whole week... TIme to be back. It is 9:19 PM. I have around 1 hour at most to work on it today.
+
+I need to finish the arduino part of the code. I need to enable the whole range so that I have correct number reported.
+Turns out it is not muck work. The sensitivity is just all 0b00...
+OMG. I AM SO MAD. The reason why the print never works is because I don't have new line printed..... I suspect much as I have put lots of print lines where the python code hangs. I see "readline" and then I ask myself.... How does it read a line? A LINE. New line.
+
+And with just that, step 1 and step2 are completed
+
+or is it. All the values seems ok except for gx, it is 500 degrees per seconds?? I think it is possible that I have a faulty device. I just ordereed 3 MPU 6050. Let's hope for the best. In the meantime, I can use the simulate option
+
+hmmm the value it output is always 500. with the multiplier in, that is 131 * 500 = 65000. I think it has something to do with negative value. I try flip the sensor upside down and my gravity reading goes up to 3 when it should be negative 1. Problem solved. I should somehow interpert the value as negative as well....
+
+Why don't they add a subtractor like how ieee754 works.... NEVER MIND IT IS ME..... i declared lots of variables as u16...
+
+```cpp
+uint16_t raw_ax, raw_ay, raw_az, raw_gx, raw_gy, raw_gz;
+```
+
+That is fixed. Removed the `u`.
+
+Also i cancelled the MPU-6050 order. Saved myself $12.
+
+Step 3 is also easy because the comment just gives away the implementation.. .i dont even have to look up trigonometry (or vector math as the cooler people have stop using trigonometry long time ago)
+
+Step 4 is also easy. And yes I see the drift. I think it is already known to me because gx is reported with -2 dps all the time. I guess I am going to implement deadzone next, aren't i
+
+Step 5 is not dead zone but drifting filter. I guess it makes sense that these two things are totally different. I did not realy expect the math to be this simple as I use it a lot in graphics rendering and other video game entity logic. I never think of them as integral. I mean for comp filter it is a linear interpolation and thanks to the accelerometer, it compensates the value to go back to where it should be. I guess this is why calibration is important
+
+That was easy. THis is easier than I thought. I completed the whole ting in one day. Now i can focus on other things. It is 11:17PM. I worked on this for 2 hours as opposed to 1 hour as i mentioned. I will take a break now.
+
+I will run step 7 before i go take a shower and go to sleep.
+
+GOod
+
+```text
+File "/home/khang/Documents/uml-2026-spring/eece5520 microprocessor 2/lab2/python/step7_3d_viz.py", line 773, in main
+    font    = pygame.font.SysFont("Arial", 22, bold=True)
+```
+
+Oh, I have to implement stuffs. Tomorrow then
+
+## 2026-03-28
+
+Welp, I first cahgned the font from Arial to "Noto Sans" and that doesn't work. Nice.
+
+Alright, i fixed it. I removed pygame and then reinstall it. works.
+
+I think I am done here, just need to record vide now

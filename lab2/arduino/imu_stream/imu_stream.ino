@@ -55,82 +55,86 @@
 #include <Wire.h>
 
 // ─── MPU-6050 I2C Address ────────────────────────────────────────────────────
-#define MPU6050_ADDR     0x68   // AD0 pin pulled LOW → address 0x68
+#define MPU6050_ADDR 0x68 // AD0 pin pulled LOW → address 0x68
 
 // ─── MPU-6050 Register Addresses (from datasheet) ────────────────────────────
-#define REG_WHO_AM_I     0x75   // Device identity — always reads 0x68
-#define REG_PWR_MGMT_1   0x6B   // Power management — write 0x00 to wake device
-#define REG_SMPLRT_DIV   0x19   // Sample rate divider
-#define REG_CONFIG       0x1A   // Digital low-pass filter (DLPF) config
-#define REG_GYRO_CONFIG  0x1B   // Gyroscope full-scale range select
-#define REG_ACCEL_CONFIG 0x1C   // Accelerometer full-scale range select
-#define REG_ACCEL_XOUT_H 0x3B   // First byte of the 14-byte sensor data block
+#define REG_WHO_AM_I 0x75     // Device identity — always reads 0x68
+#define REG_PWR_MGMT_1 0x6B   // Power management — write 0x00 to wake device
+#define REG_SMPLRT_DIV 0x19   // Sample rate divider
+#define REG_CONFIG 0x1A       // Digital low-pass filter (DLPF) config
+#define REG_GYRO_CONFIG 0x1B  // Gyroscope full-scale range select
+#define REG_ACCEL_CONFIG 0x1C // Accelerometer full-scale range select
+#define REG_ACCEL_XOUT_H 0x3B // First byte of the 14-byte sensor data block
 
 // ─── Sensor Sensitivity (at default full-scale range) ────────────────────────
 // Accelerometer ±2 g  → 16384 LSB per g
 // Gyroscope     ±250°/s → 131 LSB per °/s
 // Dividing the raw 16-bit integer by these constants gives physical units.
 #define ACCEL_SENSITIVITY 16384.0f
-#define GYRO_SENSITIVITY    131.0f
+#define GYRO_SENSITIVITY 131.0f
 
 // ─── Streaming Rate ───────────────────────────────────────────────────────────
-#define PERIOD_MS 20UL   // 20 ms between samples = 50 Hz output rate
+#define PERIOD_MS 20UL // 20 ms between samples = 50 Hz output rate
 
 // ─── Global State ─────────────────────────────────────────────────────────────
 unsigned long lastTime = 0;
 bool streaming = false;
 
 // ─── Function Prototypes ──────────────────────────────────────────────────────
-void    initMPU6050();
-void    writeRegister(uint8_t reg, uint8_t value);
+void initMPU6050();
+void writeRegister(uint8_t reg, uint8_t value);
 uint8_t readRegister(uint8_t reg);
-void    readAndSendIMU();
-
+void readAndSendIMU();
 
 // =============================================================================
 // setup()
 // Initialises Serial, Wire, the MPU-6050, and waits for the Python handshake.
 // PROVIDED — do not modify.
 // =============================================================================
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   Wire.begin();
 
-  delay(100);          // let power rails stabilise
+  delay(100); // let power rails stabilise
 
-  initMPU6050();       // configure the sensor (see below)
+  initMPU6050(); // configure the sensor (see below)
 
   // Handshake: hold here until Python sends 's'
   Serial.println("WAITING");
-  while (true) {
-    if (Serial.available() > 0) {
+  while (true)
+  {
+    if (Serial.available() > 0)
+    {
       char c = Serial.read();
-      if (c == 's') {
+      if (c == 's')
+      {
         Serial.println("IMU_READY");
         streaming = true;
-        lastTime  = millis();
+        lastTime = millis();
         break;
       }
     }
   }
 }
 
-
 // =============================================================================
 // loop()
 // Calls readAndSendIMU() at PERIOD_MS intervals.
 // PROVIDED — do not modify.
 // =============================================================================
-void loop() {
-  if (!streaming) return;
+void loop()
+{
+  if (!streaming)
+    return;
 
   unsigned long now = millis();
-  if (now - lastTime >= PERIOD_MS) {
+  if (now - lastTime >= PERIOD_MS)
+  {
     lastTime = now;
     readAndSendIMU();
   }
 }
-
 
 // =============================================================================
 // initMPU6050()
@@ -138,7 +142,8 @@ void loop() {
 // PROVIDED — do not modify.  Study each register write to understand the config.
 // Two lines at the bottom are TODO — set the gyro and accel full-scale ranges.
 // =============================================================================
-void initMPU6050() {
+void initMPU6050()
+{
   // Wake device: PWR_MGMT_1 = 0x00 clears the SLEEP bit (device starts asleep)
   writeRegister(REG_PWR_MGMT_1, 0x00);
   delay(10);
@@ -148,11 +153,13 @@ void initMPU6050() {
   // This call exercises your readRegister() implementation.
   // If it halts here, check wiring (SDA→pin20, SCL→pin21) and your readRegister().
   uint8_t whoAmI = readRegister(REG_WHO_AM_I);
-  if (whoAmI != 0x70) {
+  if (whoAmI != 0x70)
+  {
     Serial.print("ERROR: WHO_AM_I = 0x");
     Serial.print(whoAmI, HEX);
     Serial.println(" (expected 0x68). Check wiring: SDA→pin20, SCL→pin21.");
-    while (true);   // halt
+    while (true)
+      ; // halt
   }
 
   // Sample Rate Divider: SMPLRT_DIV = 0 → internal 8 kHz gyro clock / (1+0)
@@ -181,7 +188,6 @@ void initMPU6050() {
   writeRegister(REG_ACCEL_CONFIG, ACCEL_CONFIG_BYTE);
 }
 
-
 // =============================================================================
 // writeRegister()
 // Write a single byte to an MPU-6050 register via I2C.
@@ -200,13 +206,13 @@ void initMPU6050() {
 //
 // Refer to the Wire library quick reference in the header comment above.
 // =============================================================================
-void writeRegister(uint8_t reg, uint8_t value) {
+void writeRegister(uint8_t reg, uint8_t value)
+{
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(reg);
   Wire.write(value);
   Wire.endTransmission(true);
 }
-
 
 // =============================================================================
 // readRegister()
@@ -229,7 +235,8 @@ void writeRegister(uint8_t reg, uint8_t value) {
 // Note: the casts to uint8_t in requestFrom() avoid an ambiguous-overload
 // compiler warning on some Arduino cores.
 // =============================================================================
-uint8_t readRegister(uint8_t reg) {
+uint8_t readRegister(uint8_t reg)
+{
   uint8_t res = 0;
 
   // request a read from said register
@@ -240,13 +247,13 @@ uint8_t readRegister(uint8_t reg) {
   // now actually requesting
   Wire.requestFrom((uint8_t)MPU6050_ADDR, (uint8_t)1, (uint8_t)true);
 
-  if (Wire.available() > 0) {
+  if (Wire.available() > 0)
+  {
     res = Wire.read();
   }
 
   return res;
 }
-
 
 // =============================================================================
 // readAndSendIMU()
@@ -286,7 +293,7 @@ uint8_t readRegister(uint8_t reg) {
 //        int16_t rawGX = ...
 //        int16_t rawGY = ...
 //        int16_t rawGZ = ...
-//   Question: Why do we need to cast? 
+//   Question: Why do we need to cast?
 //
 // TODO Part C — Convert to physical units, for example:
 //        float ax = rawAX / ACCEL_SENSITIVITY;  // units: g
@@ -300,7 +307,8 @@ uint8_t readRegister(uint8_t reg) {
 // TODO: The Serial output should emit one CSV line with the timestamp and all six sensor values:
 // Once you have ax..gz defined and directed to your PC, it will stream correctly.
 // =============================================================================
-void readAndSendIMU() {
+void readAndSendIMU()
+{
   // Part A: burst-read 14 bytes via I2C (see instructions above)
   float ax, ay, az, gx, gy, gz;
   int16_t raw_ax, raw_ay, raw_az, raw_gx, raw_gy, raw_gz;
@@ -313,16 +321,20 @@ void readAndSendIMU() {
   // But whatever, I guess just read everything and then deal with it later.
   Wire.beginTransmission(MPU6050_ADDR);
   Wire.write(REG_ACCEL_XOUT_H);
-  Wire.endTransmission(false);          // repeated START, keep bus
+  Wire.endTransmission(false); // repeated START, keep bus
 
   // actually reading
   Wire.requestFrom((uint8_t)MPU6050_ADDR, (uint8_t)14, (uint8_t)true);
 
   // guard for partial read
-  if (Wire.available() < 14) return;
+  if (Wire.available() < 14)
+    return;
 
   // read all 14 bytes
-  for (int i = 0; i < 14; i++) { buf[i] = Wire.read(); }
+  for (int i = 0; i < 14; i++)
+  {
+    buf[i] = Wire.read();
+  }
 
   // Part B: combine high/low bytes into int16_t raw values
   raw_ax = (int16_t)((buf[0] << 8) | buf[1]);
@@ -337,12 +349,12 @@ void readAndSendIMU() {
   ax = raw_ax / ACCEL_SENSITIVITY;
   ay = raw_ay / ACCEL_SENSITIVITY;
   az = raw_az / ACCEL_SENSITIVITY;
-  
+
   gx = raw_gx / GYRO_SENSITIVITY;
   gy = raw_gy / GYRO_SENSITIVITY;
   gz = raw_gz / GYRO_SENSITIVITY;
 
-  // Part D: Serial output 
+  // Part D: Serial output
   // Emits one CSV line: timestamp_ms,ax,ay,az,gx,gy,gz
   Serial.print(millis());
   Serial.print(',');

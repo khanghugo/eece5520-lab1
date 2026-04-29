@@ -1,0 +1,88 @@
+# lab 3 journal
+
+## 2026-04-12
+
+THis is a lot more work that lab2.
+
+reference: https://www.youtube.com/watch?v=EtXr-4ia8ts
+
+watching this to know how to connect to the motor because it looks like i should not connect directly to the mega per warnings.
+
+This is very complicated. It seems like I have to get external battery to power the motor. I just bought aa batteries along with holder..... why do i have to spend more for this??
+
+Okay, i just found out in the arduino sensor file that there is wiring there. I dont even need to use extra bread boards........ I just don't have the H bridge??? Now that is what I need to buy.
+
+Never mind, I think i dont need to buy the bridge, i can manually wire it from L293x schematics
+
+Ok, the example works based on what i read about the motor. It is just thhat i dont have anything to stick the wire to the battery so i have to do it by my hands
+
+Now i have to wire the ultrasonic and it uses 5v as well. I am going to use the small breadboard for power wiring. I hope i will not forget about it and mistakenly short 5v with battery in the future. time will tell.
+
+Welp, the wiring is easy. Who would've thunk that it is easy if there is a wire run list telling you exactly how to do it.... LAb1 is still the hardest because I had to come up with the wiring. I am not sure what I have works. I basically just connect bunch of wires so who knows. THe potentiometer I am not very confident that it works the right way but I do have it connected to ground and the display. That should work i guess
+
+Well, now onto getting the arduino file to compile. first problem is to install "MAX7219 SPI LED matrix driver" library. Easy. Wow, actually i did not know i don't have to download any files online. I can just install it on the sidebar of arduino ide. COol. I was scared for a moment because the github page for the component has some chinese characters. It is just my experience that chinese open source community (and also japanese) just write everything in their own language.
+
+Alright, that does not work. So i consulted elegoo zip file and it does contain the library theer. I need to remind myself how to install library again and we are good to go. Good. Works, now i have another include fail and that is expected. Okay, it seems like I did not read the insrtuctions from the github page. I don't have to do any of that. Welp, let's hope it is not conflicted and bites me later
+
+no errors. Now i should start writing arduino code now
+
+THERE IS example code for HC-SR04 inside elegoo folder. I think this will be a reoccuring occurence. Oh, I don't even have to do anything because again the TODO code contains the exact procedure and the code?? Good for me.
+
+## 2026-04-21
+
+It has been a while. I was sick for a whole week. Bed ridden for 2 days. Now I'm back and I got a lot of batteries and a 4 AA battery enclosure. I wired it up. GOod.
+
+I accidentally unwired my motor so i need to look at the specs sheet again, i hope i dont get anything wrong. motor goes to pin 3-6. 2 pins to the driver so that it can drive two directions, either negative or positive voltage.
+
+I got batteries, VCC2 pin 8 is battery cathode. Battery negative goes to common ground.
+
+what i might be concerned right now is my supersonic module being obscured by wires. Lets hope i dont have to rewire things
+
+Ok all wired up. boot step 1.
+
+That was scary. I got scared. It keeps beeping so i turned off instantly. I think i have the super sonic sensor blocked by wires so thats why it says "stopped". SO now i clear the distance for it.
+
+Okay for some reasons when i disconnected the arduiono due to beeping, i think it killed my entire front usb. I had to restart the pc and that works again.
+
+For now, I think everything works fine? I dont see anything on the screen. I see the LED matrix works. But for some reasons, the supersonic sensor keeps saying there is something in front of it and refuses to go full speed. I am going to move the sensor a little bit to the edge of the bread board so that there is nothing obstructing it. I think I have to check the arduino code as well
+
+Right now, everything works perfectly, the sensor works, the led matrix works, the fan spins correctly as well. The beeper also intensifies accordingly. It is possible i have the wrong polarity for the speaker but i can try later and see. the led board has back light enabled. The potentiometer isnt able to adjust the strength.
+
+This is weird, i have been calling the sensor "supersonic" but it is ultrasonic. I am not sure why i write it like that
+
+This works but there is a  problem. Every 1 second, the ultrasonic sensor says there is something immediately in front of it. I am not sure why that happens. I have all the wires setup correctly.
+
+I dont think the rest will be difficult. Lets hope so. I call it a day, it is 2136.
+
+## 2026-04-22
+
+I am waiting in the zoom waiting room?? Okay in the meantime, i am going to wire up the build. iam going to make some wires a  bit longer so i can add a pedestal to the ultrasonic sensor.
+
+Okay I see that the sensor just refuses to scan farther than 100cm. It seems like when i first boot up the board, nothing must obscure the sensor. Like it was calibrating. I should not be anywhere near it. That works. But still, it dips the power periodically and i am not sure why
+
+It is very annoying that i have to unplug the board if i want to run different code
+
+Oh, i can just press the reset button on board, nice
+
+step3, step4 easy. just 1 line of code, i dontk now why
+
+step5, isnt this code already inside sensor_reader.py????????????
+
+ok step5 was quick to make. i had a small hiccup where i forgot to divide by 10 in the decode function. Took me a while to realize the fact. If i just look at the code in the vaccum, the decode/encode should do the exact opposite thing. It is the data that is saved to the ParkingFrame type that is not correct. ANd that is where it takes me a while to realize what i did wrong.
+
+I still dont know what causes the sensor randomly drops to 0 distance and the buzzer not being continuous
+
+anyway, i try running step7, not working, need to install the pygame thing
+
+ok that works and it took a while to install pygame
+
+ I think this all has something to do with the display. the display is not working, and it is possible that the code running the display delays a lot?
+
+ let me try fixing the display somehow
+
+ ok, i have been using a rotary encoder, not potentiometer, silly.............
+ perfect, works
+
+The display works, but the  sound beeping is still here
+
+I think everything works fine except for that one thing. Wi ll be recording video, not sure if i have to draw with KiCAD now, maybe i have to just to make the presentation better than it is

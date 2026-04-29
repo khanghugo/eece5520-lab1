@@ -1,0 +1,4 @@
+(design_block_lib_table
+  (version 7)
+  (lib (name "random")(type "KiCad")(uri "/home/khang/Documents/uml-2026-spring/eece5520 microprocessor 2/lab3/kicad")(options "")(descr ""))
+)
